@@ -9,7 +9,7 @@ void display();
 int main(int argc, const char * argv[]) {
     
     char input[BUFSIZE];
-    char status;
+    char status,isSet;
     bool alarmIndicator = false;
     bool isAlarm = false;
     
@@ -39,7 +39,15 @@ int main(int argc, const char * argv[]) {
                 isAlarm = alarmCheck(currentTime, alarmTime);
             }
             memset(input,0,BUFSIZE);
-            scanf("%s", input);
+	    do {
+		if (kbhit() != 0) {
+			scanf("%s", input);
+		}
+		timer_end = clock(NULL);
+	    }while( ((timer_end-timer_start)/CLOCKS_PER_SEC) < 1 ); /* for 1 sec */
+
+	    if (input[0] == '\0') continue; /* no input, so go back to alarm check */
+            
             determinePriority(input);
             
             if(input[0]==BUTTOND){
@@ -53,7 +61,8 @@ int main(int argc, const char * argv[]) {
                         break;
 
                     case STCURTIME: /* set current time */
-
+			isSet = status; /* mark as timekeeping mode */
+			status = 
 			break;
 
 
@@ -68,6 +77,9 @@ int main(int argc, const char * argv[]) {
 			break;
 
                         
+
+
+
                     case SWMODE:
                        if (input[0] == BUTTONA){
 				status = RSSWTIME;

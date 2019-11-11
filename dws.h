@@ -13,6 +13,14 @@
 
 #define STCURTIME 11
 
+#define STSEC 12
+#define STMIN 13
+#define STHOU 14
+#define STDAY 15
+#define STMON 16
+#define STYEA 17
+
+
 #define STALRTIME 21
 
 #define MSSWTIME 31 // measure stopwatch time
