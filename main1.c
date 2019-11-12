@@ -91,27 +91,74 @@ int main(int argc, const char * argv[]) {
 				
 		    /* time setting process */
                     case STSEC: 
+			if (input[0] == BUTTONA ) { /* return to display mode */
+				status = isSet;
+			} else if(input[0] == BUTTONB) { /* increase second */
+				
+				
+			} else if(input[0] == BUTTONC ) { /* change digit second > hour */
+				status = STHOU;
+			}
 			
 			break;
 				
                     case STHOU: 
-			
+			if (input[0] == BUTTONA ) { /* return to display mode */
+				status = isSet;
+			} else if(input[0] == BUTTONB) { /* increase hour */
+				
+				
+			} else if(input[0] == BUTTONC ) { /* change digit hour > minutes */
+				status = STMIN;
+			}
 			break;
                         
                     case STMIN: 
-			
+			if (input[0] == BUTTONA ) { /* return to display mode */
+				status = isSet;
+			} else if(input[0] == BUTTONB) { /* increase minutes */
+				
+				
+			} else if(input[0] == BUTTONC ) { /* change digit hour > minute // hour > day */
+				if (isSet == STCURTIME) {
+					status = STDAY;
+				} else if (isSet == STALRTIME) {
+					status = STMIN;
+				}
+			}
 			break;
 				
                     case STDAY: 
-			
+			if (input[0] == BUTTONA ) { /* return to display mode */
+				status = isSet;
+			} else if(input[0] == BUTTONB) { /* increase day */
+				
+				
+			} else if(input[0] == BUTTONC ) { /* change digit day > month */
+				status = STMON;
+			}
 			break;
 				
 	            case STMON: 
-			
-			break;			
+			if (input[0] == BUTTONA ) { /* return to display mode */
+				status = isSet;
+			} else if(input[0] == BUTTONB) { /* increase hour */
+				
+				
+			} else if(input[0] == BUTTONC ) { /* change digit month > year */
+				status = STYEA;
+			}
+			break;
 				
                     case STYEA: 
-			
+			if (input[0] == BUTTONA ) { /* return to display mode */
+				status = isSet;
+			} else if(input[0] == BUTTONB) { /* increase hour */
+				
+				
+			} else if(input[0] == BUTTONC ) { /* change digit year > second */
+				status = STSEC;
+			}
 			break;
 				
                     case SWMODE:
