@@ -179,7 +179,7 @@ int main(int argc, const char * argv[]) {
 				status = MSLPTIME;
 
 				end = clock(NULL);
-				lapTime = (double)(end-start)/CLOCKS_PER_SEC;
+				lapTime = measureTime + (double)(end-start)/CLOCKS_PER_SEC;
 
 			} else if (input[0] == BUTTONB){ /* add up measure time */
 				status = SWMODE;
