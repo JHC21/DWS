@@ -34,7 +34,8 @@ int main(int argc, const char * argv[]) {
 		if (kbhit() != 0) {
 			isAlarm = !isAlarm; /* alarm OFF */
 		}
-        }else{
+        }
+	if(!isAlarm) {
             if(alarmIndicator){ /* if alarm indicator is On, check Alarm time */
                 isAlarm = alarmCheck(currentTime, alarmTime);
             }
@@ -61,8 +62,13 @@ int main(int argc, const char * argv[]) {
                         break;
 
                     case STCURTIME: /* set current time */
-			isSet = status; /* mark as timekeeping mode */
-			status = 
+			if (isSet == status) {
+				isSet = '\0'
+				status = TKMODE;
+			} else  {
+				isSet = status; /* mark as timekeeping mode */
+			        status = STSEC;
+			}
 			break;
 
 
@@ -73,7 +79,13 @@ int main(int argc, const char * argv[]) {
                         break;
 
                     case STALRTIME: /* set alarm time */
-
+			if (isSet == status) {
+				isSet = '\0'
+				status = ALMODE; 
+			} else  {
+				isSet = status; /* mark as alarm mode */
+			        status = STHOU;
+			}
 			break;
 
                         
