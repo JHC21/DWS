@@ -2,7 +2,7 @@
 #include <time.h> /* for time_t, time() and ctime() */
 #include <string.h> /* for memset() */
 #include <conio.h> /* for kbhit() */
-#include "dws.h" /* define */
+#include "dws.h" /* define mecro */
 
 void display();
 
@@ -87,11 +87,33 @@ int main(int argc, const char * argv[]) {
 			        status = STHOU;
 			}
 			break;
-
+				
+				
+		    /* time setting process */
+                    case STSEC: 
+			
+			break;
+				
+                    case STHOU: 
+			
+			break;
                         
-
-
-
+                    case STMIN: 
+			
+			break;
+				
+                    case STDAY: 
+			
+			break;
+				
+	            case STMON: 
+			
+			break;			
+				
+                    case STYEA: 
+			
+			break;
+				
                     case SWMODE:
                        if (input[0] == BUTTONA){
 				status = RSSWTIME;
