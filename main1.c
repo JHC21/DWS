@@ -15,7 +15,7 @@ int main(int argc, const char * argv[]) {
 
     time_t currentTime, alarmTime;
     double measureTime, lapTime;
-    clock_t start, end;
+    clock_t sw_start, sw_end;
     clock_t timer_start, timer_end;
 
     /* Initialize */
@@ -35,15 +35,10 @@ int main(int argc, const char * argv[]) {
                 isAlarm = alarmCheck(currentTime, alarmTime);
             }
             memset(input,0,BUFSIZE);
-            do {
-                if (kbhit() != 0) {
-                    scanf("%s", input);
-                }
-                timer_end = clock();
-            }while( ((timer_end-timer_start)/CLOCKS_PER_SEC) < 1 ); /* for 1 sec */
-
-            if (input[0] == '\0') continue; /* no input, so go back to alarm check */
-
+            if (kbhit() != 0) {
+               scanf("%s", input);
+            }
+  
             determinePriority(input);
 
             if(input[0]==BUTTOND){
@@ -51,10 +46,11 @@ int main(int argc, const char * argv[]) {
             }else{
                 switch( status ){
                     case TKMODE:
-
                         if (input[0] == BUTTONC){
                             status = ALMODE;
                         }
+
+			display();
                         break;
 
                     case STCURTIME: /* set current time */
@@ -65,6 +61,8 @@ int main(int argc, const char * argv[]) {
                             isSet = status; /* mark as timekeeping mode */
                             status = STSEC;
                         }
+
+			display();
                         break;
 
 
@@ -72,6 +70,8 @@ int main(int argc, const char * argv[]) {
                         if (input[0] == BUTTONC){
                             status = SWMODE;
                         }
+
+			display();
                         break;
 
                     case STALRTIME: /* set alarm time */
@@ -82,78 +82,92 @@ int main(int argc, const char * argv[]) {
                             isSet = status; /* mark as alarm mode */
                             status = STHOU;
                         }
+
+			display();
                         break;
 
 
                         /* time setting process */
                     case STSEC:
                         if (input[0] == BUTTONA ) { /* return to display mode */
-                            status = isSet;
+                           status = isSet;
+			   display();
                         } else if(input[0] == BUTTONB) { /* increase second */
 
-
+			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit second > hour */
-                            status = STHOU;
+                           status = STHOU;
+			   display();   
                         }
 
                         break;
 
                     case STHOU:
                         if (input[0] == BUTTONA ) { /* return to display mode */
-                            status = isSet;
+                           status = isSet;
+			   display(); 
                         } else if(input[0] == BUTTONB) { /* increase hour */
 
-
+			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit hour > minutes */
-                            status = STMIN;
+                           status = STMIN;
+			   display(); 
                         }
                         break;
 
                     case STMIN:
                         if (input[0] == BUTTONA ) { /* return to display mode */
-                            status = isSet;
+                           status = isSet;
+			   display(); 
                         } else if(input[0] == BUTTONB) { /* increase minutes */
 
-
-                        } else if(input[0] == BUTTONC ) { /* change digit hour > minute // hour > day */
-                            if (isSet == STCURTIME) {
-                                status = STDAY;
-                            } else if (isSet == STALRTIME) {
-                                status = STMIN;
-                            }
+			   display();
+                        } else if(input[0] == BUTTONC ) { /* change digit hour > minute or hour > day */
+                           if (isSet == STCURTIME) {
+                              status = STDAY;
+                           } else if (isSet == STALRTIME) {
+                              status = STMIN;
+                           }
+			   display(); 
                         }
                         break;
 
                     case STDAY:
                         if (input[0] == BUTTONA ) { /* return to display mode */
-                            status = isSet;
+                           status = isSet;
+			   display();
                         } else if(input[0] == BUTTONB) { /* increase day */
 
-
+			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit day > month */
-                            status = STMON;
+                           status = STMON;
+			   display();
                         }
                         break;
 
                     case STMON:
                         if (input[0] == BUTTONA ) { /* return to display mode */
-                            status = isSet;
+                           status = isSet;
+			   display();
                         } else if(input[0] == BUTTONB) { /* increase hour */
 
-
+			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit month > year */
-                            status = STYEA;
+                           status = STYEA;
+			   display();
                         }
                         break;
 
                     case STYEA:
                         if (input[0] == BUTTONA ) { /* return to display mode */
-                            status = isSet;
+                           status = isSet;
+			   display();
                         } else if(input[0] == BUTTONB) { /* increase hour */
 
-
+			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit year > second */
-                            status = STSEC;
+                           status = STSEC;
+			   display();
                         }
                         break;
 
@@ -164,42 +178,57 @@ int main(int argc, const char * argv[]) {
 
                         } else if (input[0] == BUTTONB){
                             status = MSSWTIME;
-                            start = clock(NULL);
+                            sw_start = clock(NULL);
                         } else if (input[0] == BUTTONC){
                             status = TKMODE;
                         }
+
+			display();
                         break;
 
                     case MSSWTIME: /* measure stopwatch time */
                         if (input[0] == BUTTONA){ /* measure laptime */
-                            status = MSLPTIME;
+                           status = MSLPTIME;
 
-                            end = clock(NULL);
-                            lapTime = measureTime + (double)(end-start)/CLOCKS_PER_SEC;
+                           sw_end = clock(NULL);
+                           lapTime = measureTime + (double)(sw_end-sw_start)/CLOCKS_PER_SEC;
 
+			   display();
                         } else if (input[0] == BUTTONB){ /* add up measure time */
                             status = SWMODE;
 
-                            end = clock(NULL);
-                            measureTime += (double) (end-start)/CLOCKS_PER_SEC;
+                            sw_end = clock(NULL);
+                            measureTime += (double) (sw_end-sw_start)/CLOCKS_PER_SEC;
+
+			   display();
                         }
                         break;
 
                     case MSLPTIME: /* measure laptime */
-                        status = MSSWTIME;
+                        if (input[0] == BUTTONA) {
+			   sw_end = clock(NULL);
+			   lapTime = measureTime + (double)(sw_end-sw_start)/CLOCKS_PER_SEC;
+
+			   display();
+			} else if (input[0] == BUTTONB){
+			   status = MSSWTIME;
+
+			   display();
+			}
                         break;
 
                     case RSSWTIME: /* reset stopwatch time */
                         status = SWMODE;
+			display();
                         break;
 
                     default:
                         printf("Invalid state\n");
                         return -1;
                 }
-                display();
             }
         }
+        timer_end = clock();
     }
     return 0;
 }
