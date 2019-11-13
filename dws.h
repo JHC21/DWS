@@ -37,12 +37,17 @@
 
 typedef enum boolean {false, true}bool;
 
+typedef struct Time {
+    int YY;
+    int MM;
+    int DD;
+    int hh;
+    int mm;
+    int ss;
+}Time;
+
 bool alarmCheck(time_t currentTime, time_t alarmTime);
 void backlightCheck();
-
-char displayTimekeepingMode(char input, char* status);
-char displayAlarmMode(char input, char* status);
-char displayStopwatchMode(char input, char* status, clock_t measureTime, clock_t lapTime);
 
 void determinePriority(char* inputBuffer);
 
