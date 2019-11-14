@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-#define BUFSIZE
+#define BUFSIZE 4
 
 
 /* define Modes */
@@ -35,18 +35,10 @@
 
 
 
-typedef enum boolean {false, true}bool;
+typedef enum boolean {false, true} bool;
 
-typedef struct Time {
-    int YY;
-    int MM;
-    int DD;
-    int hh;
-    int mm;
-    int ss;
-}Time;
 
-bool alarmCheck(time_t currentTime, time_t alarmTime);
+bool alarmCheck(struct tm *currentTime, struct tm *alarmTime);
 void backlightCheck();
 
 void determinePriority(char* inputBuffer);
