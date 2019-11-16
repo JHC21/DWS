@@ -1,4 +1,3 @@
-
 #include "dws.h"
 
 void determinePriority(char *input){
