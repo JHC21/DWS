@@ -63,6 +63,7 @@ int main(int argc, const char * argv[]) {
 	      timer_end = clock();
 	      if (kbhit() != 0) {
       	          scanf("%s", input);
+		  printf("*");
               }
           }while( ((double) (timer_end-timer_start) /CLOCKS_PER_SEC) < 1);
           timer_start = clock();
@@ -87,9 +88,7 @@ int main(int argc, const char * argv[]) {
                 case TKMODE:
                    if (input[0] == BUTTONC){
                       status = ALMODE;
-                   } else if (input[0] == BUTTONB){
-		      status = STCURTIME;
-		   }
+                   }
 
 		   display();
                    break;
@@ -110,9 +109,9 @@ int main(int argc, const char * argv[]) {
                     case ALMODE:
                         if (input[0] == BUTTONC){
                             status = SWMODE;
-                        }else if (input[0] == BUTTONB){
-		           status = STCURTIME;
-		        }
+                        } else if (input[0] == BUTTONB){
+                           alarmIndicator = !alarmIndicator;
+                        }
 
 			display();
                         break;
@@ -136,7 +135,7 @@ int main(int argc, const char * argv[]) {
                            status = isSet;
 			   display();
                         } else if(input[0] == BUTTONB) { /* increase second */
-
+			   currentTime->tm_sec++;
 			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit second > hour */
                            status = STHOU;
@@ -150,7 +149,8 @@ int main(int argc, const char * argv[]) {
                            status = isSet;
 			   display(); 
                         } else if(input[0] == BUTTONB) { /* increase hour */
-
+			   if(isSet == STCURTIME) currentTime->tm_hour++;
+			   else if (isSet == STALRTIME) alarmTime->tm_hour++;
 			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit hour > minutes */
                            status = STMIN;
@@ -163,7 +163,8 @@ int main(int argc, const char * argv[]) {
                            status = isSet;
 			   display(); 
                         } else if(input[0] == BUTTONB) { /* increase minutes */
-
+			   if(isSet == STCURTIME) currentTime->tm_min++;
+			   else if (isSet == STALRTIME) alarmTime->tm_min++;
 			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit hour > minute or hour > day */
                            if (isSet == STCURTIME) {
@@ -180,7 +181,7 @@ int main(int argc, const char * argv[]) {
                            status = isSet;
 			   display();
                         } else if(input[0] == BUTTONB) { /* increase day */
-
+			   currentTime->tm_mday++;
 			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit day > month */
                            status = STMON;
@@ -192,8 +193,8 @@ int main(int argc, const char * argv[]) {
                         if (input[0] == BUTTONA ) { /* return to display mode */
                            status = isSet;
 			   display();
-                        } else if(input[0] == BUTTONB) { /* increase hour */
-
+                        } else if(input[0] == BUTTONB) { /* increase month */
+			   currentTime->tm_mon++;
 			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit month > year */
                            status = STYEA;
@@ -205,8 +206,8 @@ int main(int argc, const char * argv[]) {
                         if (input[0] == BUTTONA ) { /* return to display mode */
                            status = isSet;
 			   display();
-                        } else if(input[0] == BUTTONB) { /* increase hour */
-
+                        } else if(input[0] == BUTTONB) { /* increase year */
+			   currentTime->tm_year++;
 			   display();
                         } else if(input[0] == BUTTONC ) { /* change digit year > second */
                            status = STSEC;
