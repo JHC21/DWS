@@ -4,7 +4,7 @@
 
 void backlightCheck(bool isOff){
     if(isOff){
-         system("setterm -term linux -fore black");
+         system("setterm -term linux -fore white");
     } else {
 	 system("setterm -term linux -fore yellow");
     }

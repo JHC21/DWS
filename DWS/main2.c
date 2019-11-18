@@ -21,7 +21,7 @@ int main(int argc, const char * argv[]) {
     char input[BUFSIZE];
     isAlarm = false;
     alarmIndicator = false;
-    bool isOff = false;
+    bool isOff = true;
 
     clock_t sw_start, sw_end;
     clock_t timer_start, timer_end;
@@ -49,10 +49,10 @@ int main(int argc, const char * argv[]) {
     /* Initialize Stopwatch Time */
     measureTime = 0;
     lapTime = 0;
+    timer_start = clock();
 
     /* start DWS */
     while(true) {
-       timer_start = clock();
        alarmCheck(isAlarm,currentTime, alarmTime);
        if(!isAlarm) {
           if(alarmIndicator){ /* if alarm indicator is On, check Alarm time */
@@ -64,12 +64,15 @@ int main(int argc, const char * argv[]) {
 	      if (kbhit() != 0) {
       	          scanf("%s", input);
               }
-          }while((double)(timer_end-timer_start)/CLOCKS_PER_SEC) < 1);
+          }while( ((double) (timer_end-timer_start) /CLOCKS_PER_SEC) < 1);
+          timer_start = clock();
+	  currentTime->tm_sec++;
   
           determinePriority(input);
 
           if(input[0]==BUTTOND){
 	     light_start = clock();
+	     isOff = false;
           }else{
              if(!isOff){
 	        light_end = clock();
@@ -264,16 +267,8 @@ int main(int argc, const char * argv[]) {
                         return -1;
                 }
             }
-        }
-        timer_end = clock();
-	if ((double) (timer_end - timer_start) / CLOCKS_PER_SEC > 1){
-	   timer_start = clock();
-
- 	   currentTime->tm_sec++;
-        }
-	   
+        }	   
     }
-
     free(currentTime);
     free(alarmTime);
     return 0;
@@ -287,39 +282,39 @@ void display() {
     switch((status/10)*10){
         case TKMODE:
             if(!(status%10)){
-                printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
-                printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                printf("%c \t%02d : %02d. %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
             }else{
                 switch(status){
                     case STSEC:
-                        printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
-                        printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                        printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                        printf("%c %d : %d. %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
                         printf("           __\n");
                         break;
                     case STHOU:
-                        printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
-                        printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                        printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                        printf("%c %d : %d. %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
                         printf("   __\n");
                         break;
                     case STMIN:
-                        printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
-                        printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                        printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                        printf("%c %d : %d. %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
                         printf("        __\n");
                         break;
                     case STYEA:
-                        printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
-                        printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                        printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                        printf("%c %d : %d. %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
                         printf("%d\n", currentTime->tm_year);
                         break;
                     case STMON:
-                        printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                        printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
                         printf("   __\n");
-                        printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                        printf("%c %d : %2d. %2d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
                         break;
                     case STDAY:
-                        printf("%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
+                        printf("\t%s %d %d\n", days[currentTime->tm_wday], (currentTime->tm_mon)+1, currentTime->tm_mday);
                         printf("      __\n");
-                        printf("%c %d : %d %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+                        printf("%c %d : %d. %d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
                         break;
                 }
             }
