@@ -87,7 +87,9 @@ int main(int argc, const char * argv[]) {
                 case TKMODE:
                    if (input[0] == BUTTONC){
                       status = ALMODE;
-                   }
+                   } else if (input[0] == BUTTONB){
+		      status = STCURTIME;
+		   }
 
 		   display();
                    break;
@@ -108,7 +110,9 @@ int main(int argc, const char * argv[]) {
                     case ALMODE:
                         if (input[0] == BUTTONC){
                             status = SWMODE;
-                        }
+                        }else if (input[0] == BUTTONB){
+		           status = STCURTIME;
+		        }
 
 			display();
                         break;
