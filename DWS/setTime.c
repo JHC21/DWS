@@ -18,7 +18,13 @@ void setTime(s_tm *t) {
             t->tm_hour = 0;
         }
     }
-    
+    else if(t->tm_mday==-2) { //sw
+        if (t->tm_sec >= 60) {
+             t->tm_min = (t->tm_sec)/60;
+            t->tm_sec = t->tm_sec - t->tm_min*60;
+           
+        }
+    }
     else {
         if (t->tm_sec >= 60) {
             t->tm_sec = 0;

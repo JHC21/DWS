@@ -12,7 +12,7 @@ char status, isSet;
 bool isAlarm;
 bool alarmIndicator;
 
-struct tm *currentTime, *alarmTime, *swTime, *lpTime;
+struct tm *currentTime, *alarmTime;
 double measureTime, lapTime;
 
 char* days[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
@@ -47,22 +47,14 @@ int main(int argc, const char * argv[]) {
 	currentTime->tm_min = 0;
 	currentTime->tm_sec = 0;
 	currentTime->tm_isdst = 0; // no summer time
-       
-	/* Initialize alarmTime to 12:00 */
+
+
+
+							   /* Initialize alarmTime to 12:00 */
 	alarmTime = malloc(sizeof(struct tm));
 	alarmTime->tm_hour = 0;
 	alarmTime->tm_min = 1;
 	alarmTime->tm_mday = -1;
-
-	/* Initialize swTime, lapTime */
-	swTime = malloc(sizeof(struct tm));
-	lpTime = malloc(sizeof(struct tm));
-	swTime->tm_mday = -2;
-	swTime->tm_min = 0;
-	swTime->tm_sec = 0;
-	lpTime->tm_mday = -2;
-	lpTime->tm_min = 0;
-	lpTime->tm_sec = 0;
 
 
 	/* Initialize Stopwatch Time */
@@ -309,10 +301,6 @@ int main(int argc, const char * argv[]) {
 						status = RSSWTIME;
 						measureTime = 0;
 						lapTime = 0;
-						swTime->tm_min = 0;
-						swTime->tm_sec = 0;
-						lpTime->tm_min = 0;
-						lpTime->tm_sec = 0;
 
 					}
 					else if (input[0] == BUTTONB) {
@@ -333,9 +321,6 @@ int main(int argc, const char * argv[]) {
 						sw_end = clock();
 						lapTime = measureTime + (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
 
-						lpTime->tm_sec = (lapTime/100);
-						setTime(lpTime);
-
 						display();
 
 					}
@@ -343,11 +328,7 @@ int main(int argc, const char * argv[]) {
 						status = SWMODE;
 
 						sw_end = clock();
-						measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-
-						swTime->tm_sec = (measureTime/100);
-						measureTime = ((measureTime/100) *100);
-						setTime(swTime);
+						measureTime += (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
 
 						display();
 
@@ -359,9 +340,6 @@ int main(int argc, const char * argv[]) {
 						sw_end = clock();
 
 						lapTime = measureTime + (double) ( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-						lpTime->tm_sec = (lapTime/100);
-						lapTime = ((lapTime/100) *100);
-						setTime(lpTime);
 
 						display();
 
@@ -369,11 +347,7 @@ int main(int argc, const char * argv[]) {
 					else if (input[0] == BUTTONB) {
 						status = MSSWTIME;
 						sw_end = clock();
-						measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-						swTime->tm_sec = (measureTime/100);
-						measureTime = ((measureTime/100) *100);
-						setTime(swTime);
-
+						measureTime += (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
 						sw_start = clock();
 						display();
 
@@ -396,8 +370,6 @@ int main(int argc, const char * argv[]) {
 	}
 	free(currentTime);
 	free(alarmTime);
-	free(swTime);
-	free(lpTime);
 
 	return 0;
 }
@@ -466,23 +438,24 @@ void display() {
 		
 		if (!(status % 10)) {
 			printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-			printf("%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime - (measureTime /100) * 100);
+			printf("%f' %f''%f\n", measureTime / 6000, measureTime /100  , measureTime);
 		}
 		else {
 			switch (status) {
 			case MSSWTIME:
 				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime - (measureTime /100) * 100);
+				printf("%f\n",measureTime);
+				printf("%02.0f' %02.0f''%02.0f\n",measureTime / 6000, measureTime/100 - ((measureTime/6000) *60) , measureTime - (measureTime /100) * 100);
 				break;
 
 			case MSLPTIME:
 				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("%02d' %02d''%02.0f\n", lpTime->tm_min, lpTime->tm_sec , lapTime - (lapTime /100) * 100);
+				printf("%02.0f' %02.0f''%02.0f\n", lapTime / 6000, lapTime/100 - ((lapTime/6000) *60) , lapTime - (lapTime /100) * 100);
 				break;
 
 			case RSSWTIME:
 				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime - (measureTime /100) * 100);
+				printf("%02.0f' %02.0f''%02.0f\n",  measureTime / 6000, measureTime/100 - ((measureTime/6000) *60) , measureTime - (measureTime /100) * 100);
 				break;
 			}
 		}
