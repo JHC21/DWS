@@ -36,13 +36,12 @@
 
 
 typedef enum boolean {false, true} bool;
-
+typedef struct tm s_tm;
 
 bool alarmCheck(bool isAlarm,struct tm *currentTime, struct tm *alarmTime);
 void backlightCheck(bool isOff);
-
-void determinePriority(char* inputBuffer);
-
 int kbhit(void);
+void setTime(s_tm *t);
+void determinePriority(char* inputBuffer);
 
 #endif /* dws_h */
