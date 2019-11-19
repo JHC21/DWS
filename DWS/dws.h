@@ -38,7 +38,7 @@
 typedef enum boolean {false, true} bool;
 typedef struct tm s_tm;
 
-bool alarmCheck(bool isAlarm,struct tm *currentTime, struct tm *alarmTime);
+bool alarmCheck(bool *isAlarm,char *input,struct tm *currentTime, struct tm *alarmTime);
 void backlightCheck(bool isOff);
 int kbhit(void);
 void setTime(s_tm *t);
