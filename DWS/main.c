@@ -17,6 +17,9 @@ double measureTime, lapTime;
 
 char* days[] = { "sun", "mon", "tue", "wed", "thu", "fri", "sat" };
 
+month_day[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
+
+
 
 int main(int argc, const char * argv[]) {
 	char input[BUFSIZE];
@@ -81,7 +84,7 @@ int main(int argc, const char * argv[]) {
 				index++;
 			}
 		} while (((double)(timer_end - timer_start) / CLOCKS_PER_SEC) < 1);
-
+		fflush(stdin);
 		timer_start = clock();
 		currentTime->tm_sec++;
 
@@ -95,17 +98,17 @@ int main(int argc, const char * argv[]) {
 
 
 		if (isAlarm) { /* if alarm is on, execute enabled process */
-			switch (status) {
-			case TKMODE:
-				display();
-				break;
-			case ALMODE:
-				display();
-				break;
-			case SWMODE:
-				display();
-				break;
+			if (status == MSSWTIME || status == MSLPTIME) {
+				sw_end = clock();
+				measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
+				while (measureTime > 99){
+					swTime->tm_sec++;
+					measureTime-=99;
+				}
+				sw_start = clock();
+				setTime(swTime);
 			}
+			display();
 		}
 		else { /* if alarm is off, execute enabled/triggered process */
 
@@ -244,6 +247,7 @@ int main(int argc, const char * argv[]) {
 					}
 					else if (input[0] == BUTTONB) { /* increase day */
 						currentTime->tm_mday++;
+						currentTime->tm_wday++;
 						setTime(currentTime);
 						display();
 
@@ -260,7 +264,10 @@ int main(int argc, const char * argv[]) {
 						status = isSet;
 					}
 					else if (input[0] == BUTTONB) { /* increase month */
+						moon_year(currentTime);
+						currentTime->tm_wday += month_day[currentTime->tm_mon];
 						currentTime->tm_mon++;
+						
 						setTime(currentTime);
 					}
 					else if (input[0] == BUTTONC) { /* change digit month > year */
@@ -275,7 +282,19 @@ int main(int argc, const char * argv[]) {
 						status = isSet;
 					}
 					else if (input[0] == BUTTONB) { /* increase year */
+						int sum_day = 0;
+						moon_year(currentTime);
+
+						for (int i = currentTime->tm_mon+1; i <= 12; i++)
+							sum_day += month_day[i-1];
+
 						currentTime->tm_year++;
+						moon_year(currentTime);
+
+						for(int i=1;i<currentTime->tm_mon+1;i++)
+							sum_day += month_day[i-1];
+
+						currentTime->tm_wday += sum_day;
 						setTime(currentTime);
 
 					}
@@ -311,9 +330,9 @@ int main(int argc, const char * argv[]) {
 				case MSSWTIME: /* measure stopwatch time */
 					sw_end = clock();
 					measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-					while (measureTime > 100){
+					while (measureTime > 99){
 						swTime->tm_sec++;
-						measureTime-=100;
+						measureTime-=99;
 					}
 					sw_start = clock();
 					setTime(swTime);
@@ -335,9 +354,9 @@ int main(int argc, const char * argv[]) {
 				case MSLPTIME: /* measure laptime */
 					sw_end = clock();
 					measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-					while (measureTime > 100){
+					while (measureTime > 99){
 						swTime->tm_sec++;
-						measureTime-=100;
+						measureTime-=99;
 					}
 					sw_start = clock();
 					setTime(swTime);
@@ -394,85 +413,80 @@ void display() {
 		switch (status) {
 		case STSEC:
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t%02d : %02d. \"%02d\"\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t%02d   :  %02d   .\"%02d\"\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 			break;
 
 		case STHOU:
 			if (isSet == STALRTIME) {
 				printf("AL %02d %02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
-				printf("%3c\t\"%02d\" : %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
+				printf("%3c\t\"%02d\"  :  %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
 				break;
 			}
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t\"%02d\" : %02d. %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t\"%02d\"  :  %02d   .  %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 			break;
 
 		case STMIN:
 			if (isSet == STALRTIME) {
 				printf("AL %02d %02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
-				printf("%3c\t%02d : \"%02d\"\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
+				printf("%3c\t%02d   :  \"%02d\"\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
 				break;
 			}
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t%02d : \"%02d\". %2d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t%02d   : \"%02d\"  .  %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 			break;
 		case STYEA:
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t%02d : %02d. %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t%02d   :  %02d   .  %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 			printf("\"%02d\"\n", (currentTime->tm_year) + 1900);
 			break;
 
 		case STMON:
 			printf("\t%s\t\"%02d\"\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t%02d : %02d. %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t%02d   :  %02d   .  %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 			break;
 
 		case STDAY:
 			printf("\t%s\t%02d\t\"%02d\"\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t%02d : %02d. %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t%02d   :  %02d   .  %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 
 			break;
 
 		default:
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
-			printf("%3c\t%02d : %02d. %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
+			printf("%3c\t%02d   :  %02d   .  %02d\n", (alarmIndicator ? 'A' : ' '), currentTime->tm_hour, currentTime->tm_min, currentTime->tm_sec);
 			break;
 		}
 		break;
 
 	case SWMODE:
-		
+		printf("\tST\t%02d\t%02d\n", currentTime->tm_hour, currentTime->tm_min);
 		if (!(status % 10)) {
-			printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-			printf("\t%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime);
+			printf("\t%02d' %02d''%02.0f\n", swTime->tm_min, swTime->tm_sec, measureTime);
 		}
 		else {
 			switch (status) {
 			case MSSWTIME:
-				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("\t%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime);
+				printf("\t%02d' %02d''%02.0f\n", swTime->tm_min, swTime->tm_sec, measureTime);
 				break;
 
 			case MSLPTIME:
-				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("\t%02d' %02d''%02.0f\n", lpTime->tm_min, lpTime->tm_sec , lapTime);
+				printf("\t%02d' %02d''%02.0f\n", lpTime->tm_min, lpTime->tm_sec, lapTime);
 				break;
 
 			case RSSWTIME:
-				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("\t%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime);
+				printf("\t%02d' %02d''%02.0f\n", swTime->tm_min, swTime->tm_sec, measureTime);
 				break;
 			}
 		}
 		break;
 
 	case ALMODE:
-		printf("AL %02d %02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
+		printf("\tAL\t%02d\t%02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
 		printf("%c\t%02d : %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
 		break;
 	}
 	printf("C\t\t\t\tD\n");
 	return;
 }
-
 

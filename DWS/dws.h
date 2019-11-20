@@ -33,12 +33,15 @@
 #define BUTTONC 'C'
 #define BUTTOND 'D'
 
+//#define LEN 12
 
-
-typedef enum boolean {false, true} bool;
+typedef enum boolean { false, true } bool;
 typedef struct tm s_tm;
 
-bool alarmCheck(bool *isAlarm,char *input,struct tm *currentTime, struct tm *alarmTime);
+extern int month_day[12];
+void moon_year(s_tm *t);
+
+bool alarmCheck(bool *isAlarm, char *input, struct tm *currentTime, struct tm *alarmTime);
 void backlightCheck(bool isOff);
 int kbhit(void);
 void setTime(s_tm *t);
