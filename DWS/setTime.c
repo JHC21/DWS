@@ -40,14 +40,6 @@ void setTime(s_tm *t) {
             t->tm_wday++;
 
         }
-
-  /*      
-        if ((t->tm_year % 4 == 0 && t->tm_year % 100) || t->tm_year % 400 == 0)
-            month_day[1] = 29;
-        else
-            month_day[1] = 28;
-
-   */   
         moon_year(t);
         if (t->tm_mday > month_day[t->tm_mon]) {
             t->tm_wday += month_day;
