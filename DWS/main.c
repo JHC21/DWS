@@ -178,26 +178,20 @@ int main(int argc, const char * argv[]) {
 				case STSEC:
 					if (input[0] == BUTTONA) { /* return to display mode */
 						status = isSet;
-						display();
 					}
 					else if (input[0] == BUTTONB) { /* increase second */
 						currentTime->tm_sec++;
 						setTime(currentTime);
-
-						display();
 					}
 					else if (input[0] == BUTTONC) { /* change digit second > hour */
 						status = STHOU;
-						display();
-
 					}
+					display();
 					break;
 
 				case STHOU:
 					if (input[0] == BUTTONA) { /* return to display mode */
 						status = isSet;
-						display();
-
 					}
 					else if (input[0] == BUTTONB) { /* increase hour */
 						if (isSet == STCURTIME) {
@@ -208,19 +202,16 @@ int main(int argc, const char * argv[]) {
 							alarmTime->tm_hour++;
 							setTime(alarmTime);
 						}
-						display();
 					}
 					else if (input[0] == BUTTONC) { /* change digit hour > minutes */
 						status = STMIN;
-						display();
-
 					}
+					display();
 					break;
 
 				case STMIN:
 					if (input[0] == BUTTONA) { /* return to display mode */
 						status = isSet;
-						display();
 
 					}
 					else if (input[0] == BUTTONB) { /* increase minutes */
@@ -233,8 +224,6 @@ int main(int argc, const char * argv[]) {
 							alarmTime->tm_min++;
 							setTime(alarmTime);
 						}
-						display();
-
 					}
 					else if (input[0] == BUTTONC) { /* change digit hour > minute or hour > day */
 						if (isSet == STCURTIME) {
@@ -243,9 +232,8 @@ int main(int argc, const char * argv[]) {
 						else if (isSet == STALRTIME) {
 							status = STHOU;
 						}
-
-						display();
 					}
+					display();
 					break;
 
 				case STDAY:
@@ -270,38 +258,31 @@ int main(int argc, const char * argv[]) {
 				case STMON:
 					if (input[0] == BUTTONA) { /* return to display mode */
 						status = isSet;
-						display();
-
 					}
 					else if (input[0] == BUTTONB) { /* increase month */
 						currentTime->tm_mon++;
 						setTime(currentTime);
-						display();
-
 					}
 					else if (input[0] == BUTTONC) { /* change digit month > year */
 						status = STYEA;
-						display();
-
 					}
+
+					display();
 					break;
 
 				case STYEA:
 					if (input[0] == BUTTONA) { /* return to display mode */
 						status = isSet;
-						display();
-
 					}
 					else if (input[0] == BUTTONB) { /* increase year */
 						currentTime->tm_year++;
 						setTime(currentTime);
-						display();
 
 					}
 					else if (input[0] == BUTTONC) { /* change digit year > second */
 						status = STSEC;
-						display();
 					}
+					display();
 					break;
 
 				case SWMODE:
@@ -328,55 +309,52 @@ int main(int argc, const char * argv[]) {
 					break;
 
 				case MSSWTIME: /* measure stopwatch time */
+					sw_end = clock();
+					measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
+					while (measureTime > 100){
+						swTime->tm_sec++;
+						measureTime-=100;
+					}
+					sw_start = clock();
+					setTime(swTime);
+
 					if (input[0] == BUTTONA) { /* measure laptime */
 						status = MSLPTIME;
-						sw_end = clock();
-						lapTime = measureTime + (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
+						lapTime = measureTime;
 
-						lpTime->tm_sec = (lapTime/100);
-						setTime(lpTime);
-
-						display();
-
+						lpTime->tm_sec = swTime->tm_sec;
+						lpTime->tm_min = swTime ->tm_min;
 					}
 					else if (input[0] == BUTTONB) { /* add up measure time */
 						status = SWMODE;
-
-						sw_end = clock();
-						measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-
-						swTime->tm_sec = (measureTime/100);
-						measureTime = ((measureTime/100) *100);
-						setTime(swTime);
-
-						display();
-
 					}
+					
+					display();
 					break;
 
 				case MSLPTIME: /* measure laptime */
-					if (input[0] == BUTTONA) {
-						sw_end = clock();
+					sw_end = clock();
+					measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
+					while (measureTime > 100){
+						swTime->tm_sec++;
+						measureTime-=100;
+					}
+					sw_start = clock();
+					setTime(swTime);
 
-						lapTime = measureTime + (double) ( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-						lpTime->tm_sec = (lapTime/100);
-						lapTime = ((lapTime/100) *100);
-						setTime(lpTime);
+					if (input[0] == BUTTONA) {
+						lapTime = measureTime;
+
+						lpTime->tm_sec = swTime->tm_sec;
+						lpTime->tm_min = swTime ->tm_min;
 
 						display();
 
 					}
 					else if (input[0] == BUTTONB) {
 						status = MSSWTIME;
-						sw_end = clock();
-						measureTime = (double)( (sw_end - sw_start) *100) / CLOCKS_PER_SEC;
-						swTime->tm_sec = (measureTime/100);
-						measureTime = ((measureTime/100) *100);
-						setTime(swTime);
 
-						sw_start = clock();
 						display();
-
 					}
 					break;
 
@@ -422,7 +400,7 @@ void display() {
 		case STHOU:
 			if (isSet == STALRTIME) {
 				printf("AL %02d %02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
-				printf("%3c \"%02d\" : %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
+				printf("%3c\t\"%02d\" : %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
 				break;
 			}
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
@@ -432,7 +410,7 @@ void display() {
 		case STMIN:
 			if (isSet == STALRTIME) {
 				printf("AL %02d %02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
-				printf("%3c %02d : \"%02d\"\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
+				printf("%3c\t%02d : \"%02d\"\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
 				break;
 			}
 			printf("\t%s\t%02d\t%02d\n", days[currentTime->tm_wday], (currentTime->tm_mon) + 1, currentTime->tm_mday);
@@ -466,23 +444,23 @@ void display() {
 		
 		if (!(status % 10)) {
 			printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-			printf("%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime - (measureTime /100) * 100);
+			printf("\t%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime);
 		}
 		else {
 			switch (status) {
 			case MSSWTIME:
 				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime - (measureTime /100) * 100);
+				printf("\t%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime);
 				break;
 
 			case MSLPTIME:
 				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("%02d' %02d''%02.0f\n", lpTime->tm_min, lpTime->tm_sec , lapTime - (lapTime /100) * 100);
+				printf("\t%02d' %02d''%02.0f\n", lpTime->tm_min, lpTime->tm_sec , lapTime);
 				break;
 
 			case RSSWTIME:
 				printf("ST %02d %02d\n", currentTime->tm_hour, currentTime->tm_min);
-				printf("%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime - (measureTime /100) * 100);
+				printf("\t%02d' %02d''%02.0f\n",swTime->tm_min,swTime->tm_sec, measureTime);
 				break;
 			}
 		}
@@ -490,7 +468,7 @@ void display() {
 
 	case ALMODE:
 		printf("AL %02d %02d\n", (currentTime->tm_mon) + 1, currentTime->tm_mday);
-		printf("%c %02d : %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
+		printf("%c\t%02d : %02d\n", (alarmIndicator ? 'A' : ' '), alarmTime->tm_hour, alarmTime->tm_min);
 		break;
 	}
 	printf("C\t\t\t\tD\n");
